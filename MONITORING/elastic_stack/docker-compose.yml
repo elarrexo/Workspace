@@ -1,0 +1,94 @@
+version: '3'
+services:
+  elasticsearch-node1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+    container_name: elasticsearch-node1
+    environment:
+      - node.name=elasticsearch-node1
+      - cluster.name=my-cluster
+      - node.master=true
+      - discovery.seed_hosts=elasticsearch-node2
+      - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2
+      - "ES_JAVA_OPTS=-Xmx512m -Xms512m"
+      - xpack.security.enabled=true  # Habilita la seguridad
+      - xpack.security.transport.ssl.enabled=true  # Habilita SSL/TLS
+      - xpack.security.transport.ssl.key=/usr/share/elasticsearch/config/certs/elasticsearch-node1-key.pem  # Ruta de la clave privada
+      - xpack.security.transport.ssl.certificate=/usr/share/elasticsearch/config/certs/elasticsearch-node1-cert.pem  # Ruta del certificado
+      - xpack.security.transport.ssl.certificate_authorities=/usr/share/elasticsearch/config/certs/ca-cert.pem
+      - xpack.security.transport.ssl.verification_mode=none
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./elasticsearch/certs:/usr/share/elasticsearch/config/certs  # Monta la carpeta de certificados
+    networks:
+      - elk-network
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    cap_add:
+      - IPC_LOCK
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    restart: always
+
+  elasticsearch-node2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+    container_name: elasticsearch-node2
+    environment:
+      - node.name=elasticsearch-node2
+      - cluster.name=my-cluster
+      - discovery.seed_hosts=elasticsearch-node1
+      - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2
+      - "ES_JAVA_OPTS=-Xmx512m -Xms512m"
+      - xpack.security.enabled=true
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=/usr/share/elasticsearch/config/certs/elasticsearch-node2-key.pem
+      - xpack.security.transport.ssl.certificate=/usr/share/elasticsearch/config/certs/elasticsearch-node2-cert.pem
+      - xpack.security.transport.ssl.certificate_authorities=/usr/share/elasticsearch/config/certs/ca-cert.pem
+      - xpack.security.transport.ssl.verification_mode=certificate
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./elasticsearch/certs:/usr/share/elasticsearch/config/certs
+    networks:
+      - elk-network
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    cap_add:
+      - IPC_LOCK
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    restart: always
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.10.0
+    container_name: kibana_pro
+    environment:
+      - SERVER_NAME=kibana
+    ports:
+      - "5601:5601"
+    networks:
+      - elk-network
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
+      - ./kibana/certs:/usr/share/kibana/config/certs
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    restart: always
+
+networks:
+  elk-network:

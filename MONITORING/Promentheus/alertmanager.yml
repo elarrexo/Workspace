@@ -1,0 +1,16 @@
+route:
+  receiver: smtp
+  group_by: [alertname]
+receivers:
+    - name: smtp
+      email_configs:
+          - smarthost: 172.16.99.12:587
+            hello: mail.sync.com.ec
+            to: 'dtaco@filtanet.tech'
+            from: 'monitor@filtanet.net'
+            auth_username: 'monitor@filtanet.net'
+            auth_password: 'M0n1t0r2024.'
+            send_resolved: true
+            require_tls: true
+            headers:
+              subject: 'Prometheus Mail Alerts'

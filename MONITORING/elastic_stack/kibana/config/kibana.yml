@@ -1,0 +1,28 @@
+server.host: "0.0.0.0"
+elasticsearch.hosts: ["http://elasticsearch-node1:9200"]
+elasticsearch.username: kibana_system
+elasticsearch.password: mDCwChx9mWw0SVBvOvkl
+
+elasticsearch.ssl.certificateAuthorities: ["/usr/share/kibana/config/certs/ca-cert.pem"]
+elasticsearch.ssl.verificationMode: none
+
+xpack.security.enabled: true
+xpack.security.encryptionKey: "3l4st1cs34rch++1qazxsw23edcvfr45i"
+xpack.encryptedSavedObjects.encryptionKey: "3l4st1cs34rch++1qazxsw23edcvfr45i"
+xpack.reporting.encryptionKey: "3l4st1cs34rch++1qazxsw23edcvfr45i"
+xpack.reporting.capture.browser.chromium.disableSandbox: true
+
+xpack.security.session.idleTimeout: "1h"
+xpack.security.session.lifespan: "30d"
+
+
+
+# Configuración de SSL/TLS para Kibana
+server.ssl.enabled: true
+server.ssl.key: /usr/share/kibana/config/certs/kibana-key.pem
+server.ssl.certificate: /usr/share/kibana/config/certs/kibana-cert.pem
+
+# Habilitar autenticación básica de Kibana
+xpack.security.authc.providers:
+  basic.basic1:
+    order: 0
